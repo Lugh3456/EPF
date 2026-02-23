@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Malaysia EPF Retirement Planner</title>
+<style>
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:#F4F7FB;color:#0A2540;}
+header{background:linear-gradient(135deg,#0A2540,#163B66);color:white;padding:50px 20px;text-align:center;}
+header h1{margin:0;font-size:28px;}
+header p{margin-top:10px;font-size:15px;opacity:0.85;}
+.container{padding:20px;max-width:700px;margin:-40px auto 40px auto;}
+.card{background:white;padding:20px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.05);margin-bottom:20px;}
+h2{font-size:18px;margin-top:0;}
+label{font-size:13px;font-weight:600;}
+input{width:100%;padding:14px;margin-top:6px;margin-bottom:15px;border-radius:12px;border:1px solid #ddd;font-size:16px;}
+button{width:100%;padding:16px;border-radius:14px;border:none;background:#00C2FF;color:#00314f;font-weight:bold;font-size:16px;cursor:pointer;}
+button:active{transform:scale(0.98);}
+.results{background:#EDF6FF;padding:15px;border-radius:12px;margin-top:15px;font-size:14px;}
+.total{font-size:18px;font-weight:bold;margin-top:10px;}
+footer{text-align:center;font-size:12px;padding:30px 20px;color:#777;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Malaysia EPF Retirement Planner</h1>
+  <p>A simple way to plan your retirement savings with EPF</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+  <h2>About EPF Malaysia</h2>
+  <p>
+    The <strong>Employees Provident Fund (EPF)</strong> is Malaysia’s statutory retirement savings scheme that helps employees build long‑term retirement income. Members and their employers make monthly contributions each month that accumulate and earn dividends.
+  </p>
+  <p>
+    Effective 11 May 2024, EPF restructured the accounts for members below age 55 into three accounts: <strong>Akaun Persaraan</strong> (for retirement savings), <strong>Akaun Sejahtera</strong> (for medium‑term needs), and <strong>Akaun Fleksibel</strong> (for flexible access to savings as needed). New contributions are credited into these accounts at 75 %, 15 %, and 10 % respectively.
+  </p>
+  <ul>
+    <li><strong>Akaun Persaraan</strong>: Designed for long‑term retirement accumulation. </li>
+    <li><strong>Akaun Sejahtera</strong>: Helps support housing, education, healthcare, and other medium‑term needs. </li>
+    <li><strong>Akaun Fleksibel</strong>: A new account that members can access more easily for short‑term needs. </li>
+  </ul>
+  <p>All accounts continue to earn annual dividend credits on balances. The purpose of dividends and contributions is to support retirement readiness for members. </p>
+</div>
+
+<div class="card">
+<h2>EPF Growth Projection to Age 55</h2>
+
+<label>Current Age</label><input type="number" id="age">
+<label>Existing EPF (RM)</label><input type="number" id="existing">
+<label>Monthly Salary (RM)</label><input type="number" id="salary">
+<label>Employee Contribution %</label><input type="number" id="empRate" value="11">
+<label>Employer Contribution %</label><input type="number" id="employerRate" value="13">
+<label>Voluntary Monthly Top‑Up (RM)</label><input type="number" id="voluntary" value="0">
+<label>Expected Dividend Rate (%)</label><input type="number" id="annualRate" value="5">
+
+<button onclick="calculateEPF()">Calculate Growth</button>
+
+<div id="epfResults" class="results" style="display:none;">
+<div id="balResult"></div>
+<div class="total" id="finalResult"></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Required EPF Amount at 55</h2>
+
+<label>Life Expectancy (Age)</label><input type="number" id="lifeExp">
+<label>Monthly Withdrawal Needed (RM)</label><input type="number" id="monthlyWithdraw">
+<label>Expected Dividend Rate After 55 (%)</label><input type="number" id="post55Rate" value="5">
+
+<button onclick="calculateNeededAt55()">Calculate Needed Amount</button>
+
+<div id="needResults" class="results" style="display:none;">
+<div id="neededDrawdown" class="total"></div>
+<div id="neededNoDrawdown" class="total"></div>
+</div>
+</div>
+
+</div>
+
+<footer>
+This planner is an estimate and is not affiliated with EPF Malaysia.
+</footer>
+
+<script>
+function calculateEPF() {
+    let age = parseFloat(document.getElementById("age").value);
+    let existing = parseFloat(document.getElementById("existing").value);
+    let salary = parseFloat(document.getElementById("salary").value);
+    let empRate = parseFloat(document.getElementById("empRate").value) / 100;
+    let employerRate = parseFloat(document.getElementById("employerRate").value) / 100;
+    let voluntary = parseFloat(document.getElementById("voluntary").value);
+    let dividendRate = parseFloat(document.getElementById("annualRate").value) / 100;
+
+    if(age >= 55){ alert("Age must be below 55"); return; }
+
+    let years = 55 - age;
+    let balance = existing;
+    let yearSummary = "";
+
+    for (let i = 0; i < years; i++) {
+        let yearlyContrib = (salary * (empRate + employerRate) + voluntary) * 12;
+        let avgDaily = balance + (yearlyContrib / 2);
+        let dividend = avgDaily * dividendRate;
+        balance += yearlyContrib + dividend;
+        yearSummary += "Year " + (i+1) + " Dividend: RM " + dividend.toFixed(2) + "<br>";
+    }
+
+    document.getElementById("epfResults").style.display="block";
+    document.getElementById("balResult").innerHTML = yearSummary;
+    document.getElementById("finalResult").innerText = "Estimated EPF at 55: RM " + balance.toFixed(2);
+}
+
+function calculateNeededAt55() {
+    let lifeExp = parseFloat(document.getElementById("lifeExp").value);
+    let monthlyWithdraw = parseFloat(document.getElementById("monthlyWithdraw").value);
+    let rate = parseFloat(document.getElementById("post55Rate").value) / 100;
+
+    if (lifeExp <= 55) { alert("Life expectancy must be above 55"); return; }
+
+    let years = lifeExp - 55;
+    let annualWithdraw = monthlyWithdraw * 12;
+
+    // Finite horizon required (simple approximation)
+    let neededDrawdown = (annualWithdraw * years) / (1 + rate * years * 0.5);
+
+    // Perpetual income required (no principal drawdown)
+    let neededNoDrawdown = (rate > 0) ? (annualWithdraw / rate) : neededDrawdown;
+
+    document.getElementById("needResults").style.display="block";
+    document.getElementById("neededDrawdown").innerText =
+        "Estimated EPF Needed (with drawdown): RM " + neededDrawdown.toFixed(2);
+    document.getElementById("neededNoDrawdown").innerText =
+        "Required EPF to sustain on dividends alone: RM " + neededNoDrawdown.toFixed(2);
+}
+</script>
+
+</body>
+</html>
