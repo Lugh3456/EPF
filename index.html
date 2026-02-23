@@ -115,28 +115,38 @@ function calculateEPF() {
     document.getElementById("finalResult").innerText = "Estimated EPF at 55: RM " + balance.toFixed(2);
 }
 
+
 function calculateNeededAt55() {
     let lifeExp = parseFloat(document.getElementById("lifeExp").value);
     let monthlyWithdraw = parseFloat(document.getElementById("monthlyWithdraw").value);
     let rate = parseFloat(document.getElementById("post55Rate").value) / 100;
 
-    if (lifeExp <= 55) { alert("Life expectancy must be above 55"); return; }
+    if (lifeExp <= 55) {
+        alert("Life expectancy must be above 55");
+        return;
+    }
 
     let years = lifeExp - 55;
     let annualWithdraw = monthlyWithdraw * 12;
 
-    // Finite horizon required (simple approximation)
-    let neededDrawdown = (annualWithdraw * years) / (1 + rate * years * 0.5);
+    // Present Value of an Ordinary Annuity (finite horizon)
+    let neededDrawdown = 0;
+    if (rate > 0) {
+        neededDrawdown = annualWithdraw * (1 - Math.pow(1 + rate, -years)) / rate;
+    } else {
+        neededDrawdown = annualWithdraw * years;
+    }
 
-    // Perpetual income required (no principal drawdown)
+    // Perpetuity amount (no principal drawdown)
     let neededNoDrawdown = (rate > 0) ? (annualWithdraw / rate) : neededDrawdown;
 
-    document.getElementById("needResults").style.display="block";
+    document.getElementById("needResults").style.display = "block";
     document.getElementById("neededDrawdown").innerText =
         "Estimated EPF Needed (with drawdown): RM " + neededDrawdown.toFixed(2);
     document.getElementById("neededNoDrawdown").innerText =
         "Required EPF to sustain on dividends alone: RM " + neededNoDrawdown.toFixed(2);
 }
+
 </script>
 
 </body>
